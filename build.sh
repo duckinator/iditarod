@@ -3,7 +3,6 @@ ASFLAGS=-fbin
 
 OBJDIR="obj/boot"
 SRCDIR="src/boot"
-ISOBOOT="boot"
 LOADERNAME="loader"
 ISOFILE="cd.iso"
 
@@ -26,10 +25,10 @@ function _ {
 }
 
 mkdir -p obj/boot
-mkdir -p isofs/${ISOBOOT}
 
 _ ${AS} ${ASDEBUG} ${ASFLAGS} -o ${OBJDIR}/${LOADERNAME}.o ${SRCDIR}/${LOADERNAME}.asm
 
-_ cp ${OBJDIR}/${LOADERNAME}.o isofs/${ISOBOOT}/${LOADERNAME}
+_ dd bs=1024 count=1440 if=/dev/zero of=fdd.img
+_ mkfs.msdos fdd.img
+_ dd bs=512 count=1 if=obj/boot/loader.o of=fdd.img conv=notrunc
 
-_ genisoimage -r -b ${ISOBOOT}/${LOADERNAME} -no-emul-boot -boot-load-size 4 -o ${ISOFILE} isofs
