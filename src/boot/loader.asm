@@ -1,6 +1,8 @@
 ; Yay http://www.osdever.net/tutorials/ch01.php and 
 ; http://wiki.osdev.org/A20
 
+org 7C00h
+
 global _start
 
 jmp _start
@@ -22,10 +24,10 @@ _start:
   cli
 
 	mov bx, 000Fh			; Page 0, color attribute 15 (white) for the int 10 calls below
-	mov cx, 1			; We will write 1 char
-	xor dx, dx			; Start at top-left corner
-	mov ds, dx			; Ensure ds = 0 (to let us load the message)
-	cld				; Ensure direction flag is cleared for LODSB
+	mov cx, 1			    ; We will write 1 char
+	xor dx, dx			  ; Start at top-left corner
+	mov ds, dx			  ; Ensure ds = 0 (to let us load the message)
+	cld				        ; Ensure direction flag is cleared for LODSB
 
   ; Test if a20 has been set up
   call check_a20
@@ -44,10 +46,6 @@ a20_enabled:
   push MA20Enabling
   call print
   add esp, 8
-  ;mov ax, 0xb800
-  ;mov ds, ax
-  ;mov byte [ds:0x0], 'a'
-  ;mov byte [ds:0x1], 0x1f
 
   ; Insert crap to load the kernel here
   jmp _hlt
