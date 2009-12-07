@@ -1,3 +1,6 @@
+section .data
+column db 2
+
 section .text
 
 print:
@@ -38,8 +41,3 @@ print_char:
     mov esp, ebp
     pop ebp
     ret
-
-section .data
-column db 2
-
-section .text
