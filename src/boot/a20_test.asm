@@ -1,6 +1,6 @@
 ; The following code is public domain licensed
  
-[bits 16]
+;[bits 16]
  
 ; Function: check_a20
 ;
