@@ -9,9 +9,9 @@ section .text
 	mov ds, ax
 	jmp 0x0:_start
 
-%include 'src/boot/print.asm'
-%include "src/boot/a20_test.asm"
-%include "src/boot/a20_enable.asm"
+%include 'src/mbr/print.asm'
+%include "src/mbr/a20_test.asm"
+%include "src/mbr/a20_enable.asm"
 
 _halt:
 	cli
@@ -35,12 +35,30 @@ _start:
 	.a20_enabled:
 		mov si, A20String
 		call print
-		
+
+	; Reset drives
+	mov ah, 0x0
+	mov dl, 0x0
+	int 0x13
+
+	; Read from drive
+	mov ax, 0x0
+	mov es, ax
+	mov bx, 0x7e00
+	mov ah, 0x02
+	mov al, 0x1
+	mov ch, 0x0
+	mov cl, 0x2
+	mov dh, 0x0
+	mov dl, 0x0
+	int 0x13
+
+	jmp 0x7e00
 
 	jmp _halt
 
 A20String db 'A20',13,10,0
 IDString db 'Semplice Stage 1',13,10,0
 
+times 510-($-$$) db 0x0
 dw 0xaa55
-
