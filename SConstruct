@@ -7,6 +7,8 @@ buildtype = ARGUMENTS.get('buildtype', 'debug')
 ansi = ARGUMENTS.get('ansi', 'no')
 strict = ARGUMENTS.get('strict', 'yes')
 
+floppy = Builder(action='./makefloppy.sh')
+
 distreq = []
 
 env = Environment(
@@ -26,7 +28,8 @@ env = Environment(
 	AS='nasm',
 	ASFLAGS=['-fbin'],
 	LINK='ld',
-	LINKFLAGS=['-nostdlib', '-melf_i386']
+	LINKFLAGS=['-nostdlib', '-melf_i386'],
+	BUILDERS={'Floppy': floppy}
 )
 
 if buildtype == 'debug':
@@ -36,3 +39,4 @@ Export('env', 'arch', 'buildtype', 'distreq')
 
 SConscript('src/SConscript')
 
+env.Floppy('fdd.img', distreq)
