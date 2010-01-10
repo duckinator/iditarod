@@ -2,4 +2,4 @@ cd.iso
 fdd.img
 obj/
 isofs/
-.sconsign.dblight
+.sconsign.dblite

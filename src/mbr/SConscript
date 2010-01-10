@@ -1,7 +1,8 @@
 # vim: syntax=python
 Import('env', 'arch', 'buildtype', 'distreq')
-Import('loader_sources', 'semplice')
 
-loader_sources = [
+sources = [
 	'mbr/loader.asm'
 ]
+
+Return('sources')

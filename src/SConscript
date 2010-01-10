@@ -2,22 +2,13 @@
 
 Import('env', 'arch', 'buildtype', 'distreq')
 
-sources = []
+semplice = env.Clone()
+
 loader_sources= []
 stage2_sources = []
 
-semplice = env.Clone()
-
-Export('sources', 'semplice')
-Export('loader_sources', 'semplice')
-Export('stage2_sources', 'semplice')
-
-SConscript('mbr/SConscript')
-SConscript('stage2/SConscript')
-
-#distreq += ['src/metodo.exe']
-
-#semplice.Program('semplice', sources)
+loader_sources = SConscript('mbr/SConscript')
+stage2_sources = SConscript('stage2/SConscript')
 
 semplice.Object('../obj/semplice/loader', loader_sources)
 semplice.Object('../obj/semplice/stage2', stage2_sources)
