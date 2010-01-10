@@ -1,6 +1,8 @@
 # vim: syntax=python
 Import('env', 'arch', 'buildtype', 'distreq')
 
+distreq += ['obj/semplice/stage2']
+
 sources = [
 	'stage2/stage2.asm'
 ]
