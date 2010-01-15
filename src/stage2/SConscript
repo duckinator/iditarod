@@ -1,5 +1,5 @@
 # vim: syntax=python
-Import('env', 'arch', 'buildtype', 'distreq')
+Import('stage2env', 'arch', 'buildtype', 'distreq')
 
 distreq += ['obj/semplice/stage2']
 
