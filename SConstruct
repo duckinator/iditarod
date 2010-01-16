@@ -11,7 +11,7 @@ floppy = Builder(action='./makefloppy.sh')
 
 distreq = []
 
-mbrenv = Environment(
+env = Environment(
 	ENV = {'PATH' : os.environ['PATH']},
 	OBJPREFIX='',
 	OBJSUFFIX='',
@@ -23,8 +23,6 @@ mbrenv = Environment(
 	LIBSUFFIX='.lib',
 	SHLIBPREFIX='',
 	SHLIBSUFFIX='.shl',
-	CC='gcc',
-	CCFLAGS=['-nostdinc', '-g', '-I', 'include', '-I', '-D', '%s' % arch.upper()],
 	AS='nasm',
 	ASFLAGS=['-fbin'],
 	LINK='ld',
@@ -32,33 +30,8 @@ mbrenv = Environment(
 	BUILDERS={'Floppy': floppy}
 )
 
-stage2env = Environment(
-	ENV = {'PATH' : os.environ['PATH']},
-	OBJPREFIX='',
-	OBJSUFFIX='',
-	SHOBJPREFIX='',
-	SHOBJSUFFIX='.sho',
-	PROGPREFIX='',
-	PROGSUFFIX='.exe',
-	LIBPREFIX='',
-	LIBSUFFIX='.lib',
-	SHLIBPREFIX='',
-	SHLIBSUFFIX='.shl',
-	CC='gcc',
-	CCFLAGS=['-nostdinc', '-g', '-I', 'include', '-I', '-D', '%s' % arch.upper()],
-	AS='nasm',
-	ASFLAGS=['-fbin'],
-	LINK='ld',
-	LINKFLAGS=['-nostdlib', '-melf_i386'],
-	BUILDERS={'Floppy': floppy}
-)
-
-if buildtype == 'debug':
-  mbrenv.Append(CCFLAGS=['-g', '-D', 'DEBUG'], LINKFLAGS=['-g'])
-  stage2env.Append(CCFLAGS=['-g', '-D', 'DEBUG'], LINKFLAGS=['-g'])
-
-Export('mbrenv', 'stage2env', 'arch', 'buildtype', 'distreq')
+Export('env', 'arch', 'buildtype', 'distreq')
 
 SConscript('src/SConscript')
 
-mbrenv.Floppy('fdd.img', distreq)
+env.Floppy('fdd.img', distreq)

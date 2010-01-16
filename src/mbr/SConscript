@@ -1,5 +1,5 @@
 # vim: syntax=python
-Import('mbrenv', 'arch', 'buildtype', 'distreq')
+Import('env', 'arch', 'buildtype', 'distreq')
 
 distreq += ['obj/loader']
 
