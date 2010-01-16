@@ -1,9 +1,8 @@
 # vim: syntax=python
 
-Import('mbrenv', 'stage2env', 'arch', 'buildtype', 'distreq')
+Import('env', 'arch', 'buildtype', 'distreq')
 
-mbr= mbrenv.Clone()
-stage2 = stage2env.Clone()
+semplice = env.Clone()
 
 loader_sources= []
 stage2_sources = []
@@ -11,5 +10,5 @@ stage2_sources = []
 loader_sources = SConscript('mbr/SConscript')
 stage2_sources = SConscript('stage2/SConscript')
 
-mbr.Object('../obj/loader', loader_sources)
-stage2.Object('../obj/semplice/stage2', stage2_sources)
+semplice.Object('../obj/loader', loader_sources)
+semplice.Object('../obj/semplice/stage2', stage2_sources)
