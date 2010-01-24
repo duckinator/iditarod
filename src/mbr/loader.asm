@@ -73,6 +73,8 @@ _start:
 	mov dl, 0x0
 	int 0x13
 
+	cli
+
 	; Load a GDT
 	xor ax, ax
 	mov ds, ax
@@ -80,8 +82,7 @@ _start:
 
 	; Switch to protected mode
 	mov eax, cr0
-	;or eax, 1
-	or al, 1
+	or eax, 1
 	mov cr0, eax
 
 	jmp 0x08:0x7e00
@@ -115,8 +116,8 @@ gdt_data:
 gdt_end:
 
 gdt_desc:
-	db gdt_end - gdt - 1
-	dw gdt
+	dw gdt_end - gdt - 1
+	dd gdt
 
 times 510-($-$$) db 0x0
 dw 0xaa55
