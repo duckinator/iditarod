@@ -95,7 +95,8 @@ IDString db 'Semplice Stage 1',13,10,0
 gdt:
 
 gdt_null:
-	dq 0
+	dd 0
+	dd 0
 
 gdt_code:
 	dw 0xffff
