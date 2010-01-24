@@ -14,3 +14,5 @@ mov byte [ds:0xb8001], 0x2f
 mov esp, 0x90000
 
 mov byte [ds:0xb8000], 'b'
+
+hlt
