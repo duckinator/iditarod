@@ -5,9 +5,9 @@ global _start
 
 section .text
 
-	mov ax, 0x0
-	mov ds, ax
 	jmp 0x0:_start
+
+%include 'src/mbr/bios_parameter_block.asm'
 
 %include 'src/mbr/print.asm'
 %include "src/mbr/a20_test.asm"
@@ -21,6 +21,9 @@ _halt:
 
 _start:
 	cli
+
+	mov ax, 0x0
+	mov ds, ax
 
 	mov si, IDString
 	call print
@@ -74,11 +77,6 @@ _start:
 	xor ax, ax
 	mov ds, ax
 	lgdt [gdt_desc]
-
-	; Switch to protected mode
-	mov eax, cr0
-	or eax, 1
-	mov cr0, eax
 
 	jmp 0x08:0x7e00
 
