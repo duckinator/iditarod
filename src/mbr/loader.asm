@@ -78,6 +78,12 @@ _start:
 	mov ds, ax
 	lgdt [gdt_desc]
 
+	; Switch to protected mode
+	mov eax, cr0
+	;or eax, 1
+	or al, 1
+	mov cr0, eax
+
 	jmp 0x08:0x7e00
 
 	jmp _halt

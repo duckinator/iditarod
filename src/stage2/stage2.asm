@@ -1,11 +1,6 @@
 bits 32
 org 0x7e00
 
-; Switch to protected mode
-mov eax, cr0
-or eax, 1
-mov cr0, eax
-
 mov eax, 0x10
 mov ds, eax
 mov es, eax
