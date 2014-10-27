@@ -1,5 +1,6 @@
-cd.iso
-fdd.img
-obj/
+*.iso
+*.img
+*.o
 isofs/
-.sconsign.dblite
+*.dist
+
