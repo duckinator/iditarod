@@ -38,9 +38,7 @@ override LDFLAGS += -nostdlib -g -melf_i386
 #override ASFLAGS += -felf32
 
 ifeq ($(BUILD_TYPE),debug)
-	ASDEBUG=" -g "
-else
-	ASDEBUG=""
+	ASDEBUG="-g"
 endif
 
 include config.mk
@@ -58,7 +56,7 @@ config.mk:
 
 %.o: %.asm
 	@$(call STATUS,"ASSEMBLE",$^)
-	@${ASM} ${ASFLAGS} -o $@ $<
+	@${ASM} ${ASFLAGS} ${ASDEBUG} -o $@ $<
 
 fdd: floppy
 floppy: ${OBJFILES}
