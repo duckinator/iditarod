@@ -10,7 +10,9 @@ jmp 0x0:_start
 %include 'src/mbr/bios_parameter_block.asm'
 
 %include 'src/mbr/print.asm'
-%include "src/mbr/a20_enable.asm"
+%include 'src/mbr/a20_enable.asm'
+%include 'src/mbr/load_stage2_hdd.asm'
+%include 'src/mbr/load_stage2_floppy.asm'
 
 _halt:
   cli
@@ -30,62 +32,46 @@ _start:
   call enable_a20
   print Done
 
-  print Stage2Loading
+  print Stage2LoadFDD
 
-  ; Reset drives
-  mov ah, 0x0
-  mov dl, 0x0
-  int 0x13
+  call load_stage2_floppy       ; Attempt to load stage2 from floppy disk.
+  jc  .stage2_load_error_floppy ; Go to error handler if load failed.
+  jmp .run_stage2               ; Run stage2 if load succeeded.
 
-  ; Read from drive
-  mov ax, 0x0
-  mov es, ax
-  mov bx, 0x7e00
-  mov ah, 0x02
-  mov al, 0x1
-  mov ch, 0x0
-  mov cl, 0x2
-  mov dh, 0x0
-  mov dl, 0x0
-  int 0x13
-  
-  ; Reset drives
-  mov ah, 0x0
-  mov dl, 0x0
-  int 0x13
+  .stage2_load_error_floppy:
+    print Stage2LoadHDD
+    call load_stage2_hdd        ; Attempt to load stage2 from hard disk.
+    jc  .stage2_load_error      ; Go to error handler if load failed.
+    jmp .run_stage2             ; Run stage2 if load succeeded.
 
-  ; Read from drive
-  mov ax, 0x2000
-  mov es, ax
-  mov bx, 0x0
-  mov ah, 0x02
-  mov al, 0x9
-  mov ch, 0x0
-  mov cl, 0x3
-  mov dh, 0x0
-  mov dl, 0x0
-  int 0x13
+  .stage2_load_error:
+    print Stage2LoadFail
+    jmp _halt
 
-  cli
+  .run_stage2:
+    cli
 
-  ; Load a GDT
-  xor ax, ax
-  mov ds, ax
-  lgdt [gdt_desc]
+    ; Load a GDT
+    xor ax, ax
+    mov ds, ax
+    lgdt [gdt_desc]
 
-  ; Switch to protected mode
-  mov eax, cr0
-  or eax, 1
-  mov cr0, eax
+    ; Switch to protected mode
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
 
-  jmp 0x08:0x7e00
+    ; TODO: Figure out how to store 0x7e00 somewhere.
+    jmp 0x08:0x7e00   ; 0x7e00 needs to match load_stage2_*.asm.
 
-  jmp _halt
+    jmp _halt
 
-IDString      db `Semplice Stage 1\r\n`, 0
-A20Enabling   db 'Enabling A20... ', 0
-Stage2Loading db `Loading Stage 2...`, 0
-Done          db `Done.\r\n`, 0
+IDString        db `Semplice Stage 1\r\n`, 0
+A20Enabling     db 'Enabling A20... ', 0
+Stage2LoadFDD   db `Loading Stage 2 from floppy disk... `, 0
+Stage2LoadHDD   db `Failed.\r\nLoading Stage 2 from hard disk... `, 0
+Stage2LoadFail  db `\r\nERROR: Could not load Stage 2.\r\n`, 0
+Done            db `Done.\r\n`, 0
 
 gdt:
 
