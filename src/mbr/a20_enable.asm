@@ -1,6 +1,5 @@
 bits 16
 
-; enable_a20:
 enable_a20:
   cli
 

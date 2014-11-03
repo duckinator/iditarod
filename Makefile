@@ -66,7 +66,12 @@ floppy: ${OBJFILES}
 	@dd bs=512 count=1 if=${LOADERDIR}/${LOADERNAME}.o of=${FDDFILE} conv=notrunc
 	@dd bs=512 count=2 seek=1 if=${STAGE2DIR}/${STAGE2NAME}.o of=${FDDFILE} conv=notrunc
 
-qemu: floppy
+qemu: qemu-fdd
+
+qemu-hdd: floppy
+	qemu-system-i386 -vga std -serial stdio -hda ${FDDFILE}
+
+qemu-fdd: floppy
 	qemu-system-i386 -vga std -serial stdio -fda ${FDDFILE}
 
 qemu-monitor: floppy
