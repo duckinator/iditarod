@@ -74,9 +74,6 @@ qemu-hdd: floppy
 qemu-fdd: floppy
 	qemu-system-i386 -vga std -serial stdio -fda ${FDDFILE}
 
-qemu-monitor: floppy
-	qemu-system-i386 -monitor stdio -cdrom ${FDDFILE}
-
 clean:
 	@find ./src -name '*.o'   -delete
 	@find ./src -name '*.lib' -delete
