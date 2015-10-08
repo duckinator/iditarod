@@ -43,6 +43,8 @@ endif
 
 include config.mk
 
+ASFLAGS += -DTARGET=${TARGET} -DFDDSIZE=${FDDSIZE}
+
 all: config.mk floppy
 
 config.mk:
@@ -56,13 +58,13 @@ config.mk:
 
 %.o: %.asm
 	@$(call STATUS,"ASSEMBLE",$^)
-	@${ASM} ${ASFLAGS} ${ASDEBUG} -DTARGET=${TARGET} -o $@ $<
+	@${ASM} ${ASFLAGS} ${ASDEBUG} -o $@ $<
 
 fdd: floppy
 floppy: ${OBJFILES}
 	@$(call STATUS,"FDD IMG ",$^)
-	@dd bs=1024 count=1440 if=/dev/zero of=${FDDFILE}
-	@mkfs.msdos ${FDDFILE}
+	@dd bs=1024 count=${FDDSIZE} if=/dev/zero of=${FDDFILE}
+	#@mkfs.msdos ${FDDFILE}
 	@dd bs=512 count=1 if=${LOADERDIR}/${LOADERNAME}.o of=${FDDFILE} conv=notrunc
 	@dd bs=512 count=2 seek=1 if=${STAGE2DIR}/${STAGE2NAME}.o of=${FDDFILE} conv=notrunc
 
