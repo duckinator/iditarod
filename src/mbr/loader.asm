@@ -1,3 +1,4 @@
+cpu TARGET
 bits 16
 org 0x7c00
 
@@ -35,7 +36,9 @@ _start:
   print Stage2LoadFDD
 
   call load_stage2_floppy       ; Attempt to load stage2 from floppy disk.
+%ifidni TARGET, 386             ; 286s will not have int 13h, subfunction 42h.
   jc  .stage2_load_error_floppy ; Go to error handler if load failed.
+%endif
   jmp .run_stage2               ; Run stage2 if load succeeded.
 
   .stage2_load_error_floppy:
@@ -57,9 +60,15 @@ _start:
     lgdt [gdt_desc]
 
     ; Switch to protected mode
-    mov eax, cr0
-    or eax, 1
-    mov cr0, eax
+    %ifidni TARGET, 286
+        smsw ax
+        or ax, 1
+        lmsw ax
+    %else
+        mov eax, cr0
+        or eax, 1
+        mov cr0, eax
+    %endif
 
     ; TODO: Figure out how to store 0x7e00 somewhere.
     jmp 0x08:0x7e00   ; 0x7e00 needs to match load_stage2_*.asm.
@@ -84,16 +93,34 @@ gdt_code:
   dw 0
   db 0
   db 10011010b
-  db 11001111b
-  db 0
+  %ifidni TARGET, 286
+    dw 0
+  %else
+    db 11001111b
+    db 0
+  %endif
 
 gdt_data:
   dw 0xffff
   dw 0
   db 0
   db 10010010b
-  db 11001111b
-  db 0
+  %ifidni TARGET, 286
+      dw 0
+  %else
+    db 11001111b
+    db 0
+  %endif
+
+;Segments can only be 64kB on 286, so let's define a video segment!
+%ifidn TARGET, 286
+gdt_video:
+    dw 0xffff
+    dw 0
+    db 0xb ;0x0b0000
+    db 10010010b
+    dw 0
+%endif
 
 gdt_end:
 

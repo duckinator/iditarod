@@ -1,3 +1,5 @@
+cpu TARGET
+
 load_stage2_floppy:
   ; Reset drives
   mov ah, 0x0
@@ -27,7 +29,11 @@ load_stage2_floppy:
   mov es, ax
   mov bx, 0x0
   mov ah, 0x02
+%ifidn FDDSIZE, 360
+  mov al, 0x06
+%else
   mov al, 0x9
+%endif
   mov ch, 0x0
   mov cl, 0x3
   mov dh, 0x0

@@ -1,3 +1,5 @@
+cpu TARGET
+
 load_stage2_hdd:
   mov si, data_address_packet
   mov ah, 0x42  ; ?
