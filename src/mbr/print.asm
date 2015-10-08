@@ -1,3 +1,5 @@
+cpu TARGET
+
 bits 16
 
 _print:
