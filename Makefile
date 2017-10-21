@@ -29,7 +29,7 @@ config.mk:
 	@false
 
 %.o: %.c
-	${CC} ${CFLAGS} -MMD -MP -MT "$*.d $*.o"  -c $< -o $@
+	${CC} ${CFLAGS} -c $< -o $@
 
 %.o: %.asm
 	${AS} ${ASFLAGS} -o $@ $<
