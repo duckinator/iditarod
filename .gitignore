@@ -3,4 +3,4 @@
 *.o
 isofs/
 *.dist
-
+/config.mk
