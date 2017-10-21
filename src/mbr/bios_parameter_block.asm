@@ -1,5 +1,3 @@
-cpu TARGET
-
 section .text
 
 BytesPerSector      equ    0x000B

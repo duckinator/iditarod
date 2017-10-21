@@ -1,5 +1,3 @@
-cpu TARGET
-
 load_stage2_floppy:
   ; Reset drives
   mov ah, 0x0

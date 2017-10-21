@@ -1,4 +1,3 @@
-cpu TARGET
 bits 16
 org 0x7c00
 
@@ -58,15 +57,9 @@ _start:
     lgdt [gdt_desc]
 
     ; Switch to protected mode
-    %ifidni TARGET, 286
-        smsw ax
-        or ax, 1
-        lmsw ax
-    %else
-        mov eax, cr0
-        or eax, 1
-        mov cr0, eax
-    %endif
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
 
     ; TODO: Figure out how to store 0x7e00 somewhere.
     jmp 0x08:0x7e00   ; 0x7e00 needs to match load_stage2_*.asm.
@@ -91,34 +84,16 @@ gdt_code:
   dw 0
   db 0
   db 10011010b
-  %ifidni TARGET, 286
-    dw 0
-  %else
-    db 11001111b
-    db 0
-  %endif
+  db 11001111b
+  db 0
 
 gdt_data:
   dw 0xffff
   dw 0
   db 0
   db 10010010b
-  %ifidni TARGET, 286
-      dw 0
-  %else
-    db 11001111b
-    db 0
-  %endif
-
-;Segments can only be 64kB on 286, so let's define a video segment!
-%ifidn TARGET, 286
-gdt_video:
-    dw 0xffff
-    dw 0
-    db 0xb ;0x0b0000
-    db 10010010b
-    dw 0
-%endif
+  db 11001111b
+  db 0
 
 gdt_end:
 

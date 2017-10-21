@@ -56,7 +56,7 @@ config.mk:
 
 %.o: %.asm
 	@$(call STATUS,"ASSEMBLE",$^)
-	@${ASM} ${ASFLAGS} ${ASDEBUG} -DTARGET=${TARGET} -o $@ $<
+	@${ASM} ${ASFLAGS} ${ASDEBUG} -o $@ $<
 
 fdd: floppy
 floppy: ${OBJFILES}

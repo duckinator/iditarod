@@ -1,5 +1,4 @@
 bits 16
-cpu TARGET
 
 enable_a20:
   cli
@@ -14,22 +13,14 @@ enable_a20:
 
   call .a20wait2
   in al, 0x60
-  %ifidni TARGET, 286
-    push ax
-  %else
-    push eax
-  %endif
+  push eax
 
   call .a20wait
   mov al, 0xd1
   out 0x64, al
 
   call .a20wait
-  %ifidni TARGET, 286
-    pop ax
-  %else
-    pop eax
-  %endif
+  pop eax
   or al, 2
   out 0x60, al
 
