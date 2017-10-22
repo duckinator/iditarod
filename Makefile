@@ -64,6 +64,7 @@ clean:
 	@find ./src -name '*.exe' -delete
 	@find ./src -name '*.d'   -delete
 	@rm -f ${HDDFILE}
+	@rm -f ./${NAME}.iso
 	@rm -rf ./isofs
 
 .PHONY: all clean disk-image iso qemu qemu-hdd clean
