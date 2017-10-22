@@ -41,6 +41,18 @@ disk-image: ${OBJFILES}
 	@dd bs=512 count=1 if=${LOADERDIR}/${LOADERNAME}.o of=${HDDFILE} conv=notrunc
 	@dd bs=512 count=2 seek=1 if=${STAGE2DIR}/${STAGE2NAME}.o of=${HDDFILE} conv=notrunc
 
+isofs: ${OBJFILES}
+	mkdir -p isofs/boot
+	cp src/mbr/loader.o isofs/boot/loader.bin
+	cp src/stage2/stage2.o isofs/boot/stage2.bin
+
+iso: ${NAME}.iso
+
+${NAME}.iso: isofs
+	${ISOFSTOOL} -R -J -c boot/bootcat \
+		-b boot/loader.bin -hard-disk-boot -boot-load-size 4 \
+		-o ./${NAME}.iso ./isofs
+
 qemu: qemu-hdd
 
 qemu-hdd: disk-image
@@ -52,5 +64,6 @@ clean:
 	@find ./src -name '*.exe' -delete
 	@find ./src -name '*.d'   -delete
 	@rm -f ${HDDFILE}
+	@rm -rf ./isofs
 
-.PHONY: all clean disk-image qemu qemu-hdd clean
+.PHONY: all clean disk-image iso qemu qemu-hdd clean
