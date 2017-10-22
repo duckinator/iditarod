@@ -12,7 +12,6 @@ jmp 0x0:_start
 %include 'src/mbr/print.asm'
 %include 'src/mbr/a20_enable.asm'
 %include 'src/mbr/load_stage2_hdd.asm'
-%include 'src/mbr/load_stage2_floppy.asm'
 
 _halt:
   cli
@@ -32,17 +31,10 @@ _start:
   call enable_a20
   print Done
 
-  print Stage2LoadFDD
-
-  call load_stage2_floppy       ; Attempt to load stage2 from floppy disk.
-  jc  .stage2_load_error_floppy ; Go to error handler if load failed.
-  jmp .run_stage2               ; Run stage2 if load succeeded.
-
-  .stage2_load_error_floppy:
-    print Stage2LoadHDD
-    call load_stage2_hdd        ; Attempt to load stage2 from hard disk.
-    jc  .stage2_load_error      ; Go to error handler if load failed.
-    jmp .run_stage2             ; Run stage2 if load succeeded.
+  print Stage2LoadHDD
+  call load_stage2_hdd        ; Attempt to load stage2 from hard disk.
+  jc  .stage2_load_error      ; Go to error handler if load failed.
+  jmp .run_stage2             ; Run stage2 if load succeeded.
 
   .stage2_load_error:
     print Stage2LoadFail
@@ -68,8 +60,7 @@ _start:
 
 IDString        db `Semplice Stage 1\r\n`, 0
 A20Enabling     db 'Enabling A20... ', 0
-Stage2LoadFDD   db `Loading Stage 2 from floppy disk... `, 0
-Stage2LoadHDD   db `Failed.\r\nLoading Stage 2 from hard disk... `, 0
+Stage2LoadHDD   db `Loading Stage 2 from hard disk... `, 0
 Stage2LoadFail  db `\r\nERROR: Could not load Stage 2.\r\n`, 0
 Done            db `Done.\r\n`, 0
 
