@@ -8,7 +8,7 @@ STAGE2NAME := "stage2"
 LOADERDIR := "src/mbr"
 STAGE2DIR := "src/stage2"
 
-FDDFILE :="${NAME}.img"
+HDDFILE :="${NAME}.img"
 
 SOURCE_SUFFIXES := '(' -name '*.c' -o -name '*.asm' ')'
 SRCFILES := $(shell find 'src' ${SOURCE_SUFFIXES})
@@ -22,7 +22,7 @@ override ASFLAGS += -fbin
 
 include config.mk
 
-all: config.mk floppy
+all: config.mk disk-image
 
 config.mk:
 	@printf "You will need to copy config.mk.dist to config.mk and edit it, first.\n"
@@ -34,27 +34,23 @@ config.mk:
 %.o: %.asm
 	${AS} ${ASFLAGS} -o $@ $<
 
-floppy: ${OBJFILES}
-	@printf "Generating floppy disk image."
-	@dd bs=1024 count=1440 if=/dev/zero of=${FDDFILE}
-	@mkfs.msdos ${FDDFILE}
-	@dd bs=512 count=1 if=${LOADERDIR}/${LOADERNAME}.o of=${FDDFILE} conv=notrunc
-	@dd bs=512 count=2 seek=1 if=${STAGE2DIR}/${STAGE2NAME}.o of=${FDDFILE} conv=notrunc
+disk-image: ${OBJFILES}
+	@printf "Generating disk image."
+	@dd bs=1024 count=1440 if=/dev/zero of=${HDDFILE}
+	@mkfs.msdos ${HDDFILE}
+	@dd bs=512 count=1 if=${LOADERDIR}/${LOADERNAME}.o of=${HDDFILE} conv=notrunc
+	@dd bs=512 count=2 seek=1 if=${STAGE2DIR}/${STAGE2NAME}.o of=${HDDFILE} conv=notrunc
 
-qemu: qemu-fdd
+qemu: qemu-hdd
 
-qemu-hdd: floppy
-	qemu-system-i386 -vga std -serial stdio -hda ${FDDFILE}
-
-qemu-fdd: floppy
-	qemu-system-i386 -vga std -serial stdio -fda ${FDDFILE}
+qemu-hdd: disk-image
+	qemu-system-i386 -vga std -serial stdio -hda ${HDDFILE}
 
 clean:
 	@find ./src -name '*.o'   -delete
 	@find ./src -name '*.lib' -delete
 	@find ./src -name '*.exe' -delete
 	@find ./src -name '*.d'   -delete
-	@rm -f tools/bootinfo
-	@rm -f ${FDDFILE}
+	@rm -f ${HDDFILE}
 
-.PHONY: all clean qemu qemu-hdd qemu-fdd clean
+.PHONY: all clean disk-image qemu qemu-hdd clean
