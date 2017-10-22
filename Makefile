@@ -58,6 +58,9 @@ qemu: qemu-hdd
 qemu-hdd: disk-image
 	qemu-system-i386 -vga std -serial stdio -hda ${HDDFILE}
 
+qemu-cdrom: iso
+	qemu-system-i386 -vga std -serial stdio -cdrom ${NAME}.iso
+
 clean:
 	@find ./src -name '*.o'   -delete
 	@find ./src -name '*.lib' -delete
