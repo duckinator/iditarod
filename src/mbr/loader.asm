@@ -12,12 +12,7 @@ jmp 0x0:_start
 %include 'src/mbr/print.asm'
 %include 'src/mbr/a20_enable.asm'
 %include 'src/mbr/load_stage2_hdd.asm'
-
-_halt:
-  cli
-  .halt:
-    hlt
-    jmp .halt
+%include 'src/mbr/load_stage2_cdd.asm'
 
 _start:
   cli
@@ -31,14 +26,21 @@ _start:
   call enable_a20
   print Done
 
+  ; Try to load from the hard drive.
   print Stage2LoadHDD
   call load_stage2_hdd        ; Attempt to load stage2 from hard disk.
-  jc  .stage2_load_error      ; Go to error handler if load failed.
-  jmp .run_stage2             ; Run stage2 if load succeeded.
+  jnc .run_stage2             ; Run stage2 if load succeeded.
 
-  .stage2_load_error:
-    print Stage2LoadFail
-    jmp _halt
+  ; If that failed, try booting from the CD drive.
+  print Failed
+  print Stage2LoadCDD
+  call load_stage2_cdd        ; Attempt to load stage2 from CD.
+  jnc .run_stage2             ; Run stage2 if load succeeded.
+
+  ; If we get here, we couldn't load stage2.
+  ; (If we succeed, we jump past this section to .run_stage2.)
+  print Stage2LoadFail
+  jmp .halt
 
   .run_stage2:
     cli
@@ -56,12 +58,17 @@ _start:
     ; TODO: Figure out how to store 0x7e00 somewhere.
     jmp 0x08:0x7e00   ; 0x7e00 needs to match load_stage2_*.asm.
 
-    jmp _halt
+.halt:
+  cli
+  hlt
+  jmp .halt
 
 IDString        db `Semplice Stage 1\r\n`, 0
 A20Enabling     db 'Enabling A20... ', 0
 Stage2LoadHDD   db `Loading Stage 2 from hard disk... `, 0
+Stage2LoadCDD   db `Loading Stage 2 from CD... `, 0
 Stage2LoadFail  db `\r\nERROR: Could not load Stage 2.\r\n`, 0
+Failed          db `Failed.\r\n`, 0
 Done            db `Done.\r\n`, 0
 
 gdt:
