@@ -8,7 +8,6 @@ jmp 0x0:_start
 %include 'src/mbr/bios_parameter_block.asm'
 
 %include 'src/mbr/print.asm'
-%include 'src/mbr/a20_enable.asm'
 %include 'src/mbr/load_stage2_hdd.asm'
 
 _start:
@@ -18,10 +17,6 @@ _start:
   mov ds, ax
 
   print IDString
-
-  print A20Enabling
-  call enable_a20
-  print Done
 
   ; Try to load from the hard drive.
   print Stage2LoadHDD

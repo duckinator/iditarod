@@ -1,6 +1,13 @@
 bits 16
 org 0x7e00
 
+jmp _start
+%include "src/stage2/a20_enable.asm"
+
+_start:
+
+call enable_a20
+
 cli
 
 ; Load a GDT
