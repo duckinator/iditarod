@@ -1,8 +1,6 @@
 bits 16
 org 0x7c00
 
-global _start
-
 section .text
 
 jmp 0x0:_start
