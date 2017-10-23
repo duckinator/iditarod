@@ -9,7 +9,7 @@ jmp 0x0:_start
 
 %include 'src/mbr/print.asm'
 %include 'src/mbr/a20_enable.asm'
-%include 'src/mbr/load_stage2_hdd.asm'
+%include 'src/eltorito/load_stage2_cdd.asm'
 
 _start:
   cli
@@ -24,8 +24,8 @@ _start:
   print Done
 
   ; Try to load from the hard drive.
-  print Stage2LoadHDD
-  call load_stage2_hdd    ; Attempt to load stage2 from hard disk.
+  print Stage2LoadCDD
+  call load_stage2_cdd    ; Attempt to load stage2 from hard disk.
   jc fail                 ; Bail if loading stage2 failed.
 
   ; TODO: Figure out how to store 0x7e00 somewhere.
@@ -43,10 +43,10 @@ halt:
 
 IDString        db `Semplice Stage 1\r\n`, 0
 A20Enabling     db 'Enabling A20... ', 0
-Stage2LoadHDD   db `Loading Stage 2 from hard disk... `, 0
+Stage2LoadCDD   db `Loading Stage 2 from CD... `, 0
 Stage2LoadFail  db `\r\nERROR: Could not load Stage 2.\r\n`, 0
 Failed          db `Failed.\r\n`, 0
 Done            db `Done.\r\n`, 0
 
-;times 510-($-$$) db 0x0
+times 510-($-$$) db 0x0
 dw 0xaa55

@@ -12,7 +12,7 @@ HDDFILE :="${NAME}.img"
 
 SOURCE_SUFFIXES := '(' -name '*.c' -o -name '*.asm' ')'
 #SRCFILES := $(shell find 'src' ${SOURCE_SUFFIXES})
-SRCFILES := src/mbr/loader.asm src/mbr/eltorito.asm src/stage2/stage2.asm
+SRCFILES := src/mbr/loader.asm src/eltorito/eltorito.asm src/stage2/stage2.asm
 OBJFILES := $(patsubst %.asm, %.o, $(patsubst %.c, %.o, $(SRCFILES)))
 
 override CFLAGS += -std=c11 -m32 -O0 -pedantic-errors -nostdinc -nostdlib -nostartfiles -nodefaultlibs -ffreestanding -fno-stack-protector -fno-stack-protector -Wall -Wextra -Wunused -Wconversion -Wundef -Wunused-parameter -Wswitch-enum -Waggregate-return -Wpacked -Wredundant-decls -Wunreachable-code -Winline -Wsystem-headers -Wbad-function-cast -Wunused-function
@@ -45,7 +45,7 @@ disk-image: ${OBJFILES}
 isofs: ${OBJFILES}
 	mkdir -p isofs/boot
 	cp src/mbr/loader.o isofs/boot/loader.bin
-	cp src/mbr/eltorito.o isofs/boot/eltorito.bin
+	cp src/eltorito/eltorito.o isofs/boot/eltorito.bin
 	cp src/stage2/stage2.o isofs/boot/stage2.bin
 
 iso: ${NAME}.iso
