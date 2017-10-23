@@ -6,8 +6,6 @@ section .text
 jmp 0x0:_start
 
 %include 'src/mbr/bios_parameter_block.asm'
-
-%include 'src/mbr/print.asm'
 %include 'src/eltorito/load_stage2_cdd.asm'
 
 _start:
@@ -16,10 +14,10 @@ _start:
   mov ax, 0x0
   mov ds, ax
 
-  print IDString
+  mov si, StartMessage
+  call print
 
   ; Try to load from the hard drive.
-  print Stage2LoadCDD
   call load_stage2_cdd    ; Attempt to load stage2 from hard disk.
   jc fail                 ; Bail if loading stage2 failed.
 
@@ -27,7 +25,8 @@ _start:
   jmp 0x7e00   ; 0x7e00 needs to match load_stage2_*.asm.
 
 fail:
-  print Stage2LoadFail
+  mov si, FailureMessage
+  call print
   jmp halt
 
 
@@ -36,12 +35,21 @@ halt:
   hlt
   jmp halt
 
-IDString        db `Semplice Stage 1\r\n`, 0
-A20Enabling     db 'Enabling A20... ', 0
-Stage2LoadCDD   db `Loading Stage 2 from CD... `, 0
-Stage2LoadFail  db `\r\nERROR: Could not load Stage 2.\r\n`, 0
-Failed          db `Failed.\r\n`, 0
-Done            db `Done.\r\n`, 0
+print:
+  mov ah, 0xe
+  mov bh, 0
+  .type:
+    lodsb
+    or al, al
+    jz .done
+    int 0x10
+    jmp .type
+  .done:
+    ret
+
+StartMessage    db `Loading Semplice Stage 2 from hard disk... `, 0
+FailureMessage  db `Failed to load Stage 2.\r\n`, 0
+
 
 times 510-($-$$) db 0x0
 dw 0xaa55
