@@ -5,18 +5,22 @@ section .text
 
 jmp 0x0:_start
 
-%include 'src/eltorito/boot_information_table.asm'
-%include 'src/eltorito/load_stage2.asm'
+; Boot Information Table is always at offset 8.
+; Causes an assembler error if it's preceded by more than 8 bytes worth of
+; code.
+times 8-($-$$) db 0
+
+; Boot Information Table
+PrimaryVolumeDescriptor  resd  1    ; LBA of the Primary Volume Descriptor
+BootFileLocation         resd  1    ; LBA of the Boot File
+BootFileLength           resd  1    ; Length of the boot file in bytes
+Checksum                 resd  1    ; 32 bit checksum
+Reserved                 resb  40   ; Reserved 'for future standardization'
 
 _start:
   cli
 
-  ; Attempt to load stage2 from CD.
-  call load_stage2
-
-  ; Jump to stage2 if it's been loaded successfully.
-  ; 0x7e00 needs to match src/eltorito/load_stage2.asm.
-;  jnc 0x7e00
+  ; TODO: Load stage2 from the CD.
 
   ; If we get here, we've failed to load stage2, so print the failure message.
   mov si, FailureMessage
