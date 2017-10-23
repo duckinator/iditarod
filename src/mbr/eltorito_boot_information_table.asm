@@ -1,3 +1,5 @@
+section .text
+
 ; Boot Information Table
 PrimaryVolumeDescriptor  resd  1    ; LBA of the Primary Volume Descriptor
 BootFileLocation         resd  1    ; LBA of the Boot File
