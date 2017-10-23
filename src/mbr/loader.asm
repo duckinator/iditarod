@@ -1,11 +1,110 @@
-%define INFORMATION_BLOCK_FILE 'src/mbr/bios_parameter_block.asm'
-%define STAGE2_LOADER_FILE 'src/stage1-common/load_stage2_hdd.asm'
+bits 16
+org 0x7c00
 
-%macro LOAD_STAGE2 0
-  ; Try to load from the hard drive.
-  print Stage2LoadHDD         ; Defined in stage1-common/loader.asm
-  call load_stage2_hdd        ; Attempt to load stage2 from hard disk.
-  jnc run_stage2              ; Run stage2 if it was loaded successfully.
-%endmacro
+section .text
 
-%include "src/stage1-common/loader.asm"
+jmp 0x0:_start
+
+%ifdef ELTORITO
+  %include 'src/mbr/eltorito_boot_information_table.asm'
+%else
+  %include 'src/mbr/bios_parameter_block.asm'
+%endif
+
+%include 'src/mbr/print.asm'
+%include 'src/mbr/a20_enable.asm'
+
+%ifdef ELTORITO
+  %include 'src/mbr/load_stage2_cdd.asm'
+%else
+  %include 'src/mbr/load_stage2_hdd.asm'
+%endif
+
+_start:
+  cli
+
+  mov ax, 0x0
+  mov ds, ax
+
+  print IDString
+
+  print A20Enabling
+  call enable_a20
+  print Done
+
+  %ifdef ELTORITO
+    ; Try to load from the CD drive.
+    print Stage2LoadCDD
+    call load_stage2_cdd    ; Attempt to load stage2 from CD.
+  %else
+    ; Try to load from the hard drive.
+    print Stage2LoadHDD
+    call load_stage2_hdd    ; Attempt to load stage2 from hard disk.
+  %endif
+
+  jnc run_stage2            ; Run stage2 if it was loaded successfully.
+
+; If we get here, we couldn't load stage2.
+  ; (If we succeed, we jump past this section to .run_stage2.)
+  print Stage2LoadFail
+  jmp halt
+
+run_stage2:
+  cli
+
+  ; Load a GDT
+  xor ax, ax
+  mov ds, ax
+  lgdt [gdt_desc]
+
+  ; Switch to protected mode
+  mov eax, cr0
+  or eax, 1
+  mov cr0, eax
+
+  ; TODO: Figure out how to store 0x7e00 somewhere.
+  jmp 0x08:0x7e00   ; 0x7e00 needs to match load_stage2_*.asm.
+
+halt:
+  cli
+  hlt
+  jmp halt
+
+IDString        db `Semplice Stage 1\r\n`, 0
+A20Enabling     db 'Enabling A20... ', 0
+Stage2LoadHDD   db `Loading Stage 2 from hard disk... `, 0
+Stage2LoadCDD   db `Loading Stage 2 from CD... `, 0
+Stage2LoadFail  db `\r\nERROR: Could not load Stage 2.\r\n`, 0
+Failed          db `Failed.\r\n`, 0
+Done            db `Done.\r\n`, 0
+
+gdt:
+
+gdt_null:
+  dd 0
+  dd 0
+
+gdt_code:
+  dw 0xffff
+  dw 0
+  db 0
+  db 10011010b
+  db 11001111b
+  db 0
+
+gdt_data:
+  dw 0xffff
+  dw 0
+  db 0
+  db 10010010b
+  db 11001111b
+  db 0
+
+gdt_end:
+
+gdt_desc:
+  dw gdt_end - gdt - 1
+  dd gdt
+
+times 510-($-$$) db 0x0
+dw 0xaa55
