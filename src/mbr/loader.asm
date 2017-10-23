@@ -34,7 +34,7 @@ halt:
   hlt
   jmp halt
 
-FailureMessage  db `Failed to load Semplice Stage 2.\r\n`, 0
+FailureMessage  db `Can't load Semplice Stage 2.\r\n`, 0
 
 times 510-($-$$) db 0x0
 dw 0xaa55
