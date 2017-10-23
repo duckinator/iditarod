@@ -21,6 +21,14 @@ BIOSParameterBlock:
   dd 0x001C ; HiddenSectors
   dd 0x0020 ; SectorsBig
 
+data_address_packet:
+  db  16            ; Length in bytes.
+  db  0             ; Always zero.
+  dw  16            ; Number of blocks to read. (I think?)
+  dw  STAGE2_ADDR   ; Memory buffer destination address.
+  dw  0             ; Memory page.
+  dd  1, 0          ; LBA to be read.
+
 _start:
   cli
 
@@ -33,31 +41,10 @@ _start:
   ; Jump to stage2 if it's been loaded successfully.
   jnc STAGE2_ADDR
 
-  ; If we get here, we've failed to load stage2, so print the failure message.
-  mov si, FailureMessage
-
-  mov ah, 0xe
-  .print_character:
-    lodsb
-    cmp al, 0
-    jz halt
-    int 0x10
-    jmp .print_character
-
 halt:
   cli
   hlt
   jmp halt
-
-FailureMessage  db `Can't load Semplice Stage 2.\r\n`, 0
-
-data_address_packet:
-  db  16            ; Length in bytes.
-  db  0             ; Always zero.
-  dw  16            ; Number of blocks to read. (I think?)
-  dw  STAGE2_ADDR   ; Memory buffer destination address.
-  dw  0             ; Memory page.
-  dd  1, 0          ; LBA to be read.
 
 times 510-($-$$) db 0x0
 dw 0xaa55
