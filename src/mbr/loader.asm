@@ -24,11 +24,11 @@ BIOSParameterBlock:
 _start:
   cli
 
-  ; Attempt to load stage2 from hard disk.
+  ; Attempt to load stage2 from hard drive.
   mov si, data_address_packet
-  mov ah, 0x42  ; ?
-  mov dl, 0x80  ; Drive number. (?)
-  int 0x13      ; Tell the BIOS to load it.
+  mov ah, 0x42  ; Tell it we want to read sectors.
+  mov dl, 0x80  ; Tell it to read them from the first hard drive.
+  int 0x13      ; Request hard disk read from BIOS using the above information.
 
   ; Jump to stage2 if it's been loaded successfully.
   jnc STAGE2_ADDR
