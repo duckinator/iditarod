@@ -19,20 +19,15 @@ _start:
 ;  jnc 0x7e00
 
   ; If we get here, we've failed to load stage2, so print the failure message.
-  mov ax, 0x0
-  mov ds, ax
-
   mov si, FailureMessage
 
   mov ah, 0xe
-  mov bh, 0
   .print_character:
     lodsb
-    or al, al
-    jz .done
+    cmp al, 0
+    jz halt
     int 0x10
     jmp .print_character
-  .done:
 
 halt:
   cli
