@@ -35,16 +35,16 @@ _start:
   %ifdef ELTORITO
     ; Try to load from the CD drive.
     print Stage2LoadCDD
-    call load_stage2_cdd    ; Attempt to load stage2 from CD.
+    ;call load_stage2_cdd    ; Attempt to load stage2 from CD.
+    ;jnc run_stage2            ; Run stage2 if it was loaded successfully.
   %else
     ; Try to load from the hard drive.
     print Stage2LoadHDD
     call load_stage2_hdd    ; Attempt to load stage2 from hard disk.
+    jnc run_stage2            ; Run stage2 if it was loaded successfully.
   %endif
 
-  jnc run_stage2            ; Run stage2 if it was loaded successfully.
-
-; If we get here, we couldn't load stage2.
+  ; If we get here, we couldn't load stage2.
   ; (If we succeed, we jump past this section to .run_stage2.)
   print Stage2LoadFail
   jmp halt
