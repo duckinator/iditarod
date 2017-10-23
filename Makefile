@@ -11,7 +11,8 @@ STAGE2DIR := "src/stage2"
 HDDFILE :="${NAME}.img"
 
 SOURCE_SUFFIXES := '(' -name '*.c' -o -name '*.asm' ')'
-SRCFILES := $(shell find 'src' ${SOURCE_SUFFIXES})
+#SRCFILES := $(shell find 'src' ${SOURCE_SUFFIXES})
+SRCFILES := src/mbr/loader.asm src/eltorito/loader.asm src/stage2/stage2.asm
 OBJFILES := $(patsubst %.asm, %.o, $(patsubst %.c, %.o, $(SRCFILES)))
 
 override CFLAGS += -std=c11 -m32 -O0 -pedantic-errors -nostdinc -nostdlib -nostartfiles -nodefaultlibs -ffreestanding -fno-stack-protector -fno-stack-protector -Wall -Wextra -Wunused -Wconversion -Wundef -Wunused-parameter -Wswitch-enum -Waggregate-return -Wpacked -Wredundant-decls -Wunreachable-code -Winline -Wsystem-headers -Wbad-function-cast -Wunused-function
@@ -44,13 +45,14 @@ disk-image: ${OBJFILES}
 isofs: ${OBJFILES}
 	mkdir -p isofs/boot
 	cp src/mbr/loader.o isofs/boot/loader.bin
+	cp src/eltorito/loader.o isofs/boot/eltorito.bin
 	cp src/stage2/stage2.o isofs/boot/stage2.bin
 
 iso: ${NAME}.iso
 
 ${NAME}.iso: isofs
 	${ISOFSTOOL} -R -J -c boot/bootcat \
-		-b boot/loader.bin -hard-disk-boot -boot-load-size 4 \
+		-b boot/eltorito.bin -hard-disk-boot -boot-load-size 4 \
 		-o ./${NAME}.iso ./isofs
 
 qemu: qemu-hdd
