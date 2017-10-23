@@ -15,7 +15,7 @@ _start:
   call load_stage2
 
   ; Jump to stage2 if it's been loaded successfully.
-  ; 0x7e00 needs to match load_stage2_hdd.asm.
+  ; 0x7e00 needs to match src/mbr/load_stage2.asm.
   jnc 0x7e00
 
   ; If we get here, we've failed to load stage2, so print the failure message.
