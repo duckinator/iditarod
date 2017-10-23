@@ -5,51 +5,41 @@ section .text
 
 jmp 0x0:_start
 
-%include 'src/mbr/bios_parameter_block.asm'
-%include 'src/eltorito/load_stage2_cdd.asm'
+%include 'src/eltorito/boot_information_table.asm'
+%include 'src/eltorito/load_stage2.asm'
 
 _start:
   cli
 
+  ; Attempt to load stage2 from CD.
+  call load_stage2
+
+  ; Jump to stage2 if it's been loaded successfully.
+  ; 0x7e00 needs to match load_stage2_hdd.asm.
+;  jnc 0x7e00
+
+  ; If we get here, we've failed to load stage2, so print the failure message.
   mov ax, 0x0
   mov ds, ax
 
-  mov si, StartMessage
-  call print
-
-  ; Try to load from the hard drive.
-  call load_stage2_cdd    ; Attempt to load stage2 from hard disk.
-  jc fail                 ; Bail if loading stage2 failed.
-
-  ; TODO: Figure out how to store 0x7e00 somewhere.
-  jmp 0x7e00   ; 0x7e00 needs to match load_stage2_*.asm.
-
-fail:
   mov si, FailureMessage
-  call print
-  jmp halt
 
+  mov ah, 0xe
+  mov bh, 0
+  .print_character:
+    lodsb
+    or al, al
+    jz .done
+    int 0x10
+    jmp .print_character
+  .done:
 
 halt:
   cli
   hlt
   jmp halt
 
-print:
-  mov ah, 0xe
-  mov bh, 0
-  .type:
-    lodsb
-    or al, al
-    jz .done
-    int 0x10
-    jmp .type
-  .done:
-    ret
-
-StartMessage    db `Loading Semplice Stage 2 from hard disk... `, 0
 FailureMessage  db `Failed to load Stage 2.\r\n`, 0
-
 
 times 510-($-$$) db 0x0
 dw 0xaa55
