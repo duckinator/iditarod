@@ -6,13 +6,13 @@ section .text
 jmp 0x0:_start
 
 %include 'src/mbr/bios_parameter_block.asm'
-%include 'src/mbr/load_stage2_hdd.asm'
+%include 'src/mbr/load_stage2.asm'
 
 _start:
   cli
 
   ; Attempt to load stage2 from hard disk.
-  call load_stage2_hdd
+  call load_stage2
 
   ; Jump to stage2 if it's been loaded successfully.
   ; 0x7e00 needs to match load_stage2_hdd.asm.
