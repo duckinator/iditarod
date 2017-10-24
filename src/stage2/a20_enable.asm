@@ -38,7 +38,6 @@ enable_a20:
   jnz .a20wait
   ret
 
- 
 .a20wait2:
   in al, 0x64
   test al, 1
