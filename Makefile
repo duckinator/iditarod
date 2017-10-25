@@ -12,7 +12,7 @@ HDDFILE :="${NAME}.img"
 
 SOURCE_SUFFIXES := '(' -name '*.c' -o -name '*.asm' ')'
 #SRCFILES := $(shell find 'src' ${SOURCE_SUFFIXES})
-SRCFILES := src/mbr/loader.asm src/eltorito/eltorito.asm src/stage2/stage2.asm
+SRCFILES := src/mbr/loader.asm src/eltorito/eltorito.asm $(shell find src/stage2/ ${SOURCE_SUFFIXES})
 OBJFILES := $(patsubst %.asm, %.o, $(patsubst %.c, %.o, $(SRCFILES)))
 
 override CFLAGS += -std=c11 -m32 -O0 -pedantic-errors -nostdinc -nostdlib -nostartfiles -nodefaultlibs -ffreestanding -fno-stack-protector -fno-stack-protector -Wall -Wextra -Wunused -Wconversion -Wundef -Wunused-parameter -Wswitch-enum -Waggregate-return -Wpacked -Wredundant-decls -Wunreachable-code -Winline -Wsystem-headers -Wbad-function-cast -Wunused-function

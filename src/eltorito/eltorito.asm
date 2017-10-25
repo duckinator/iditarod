@@ -6,8 +6,8 @@ section .text
 jmp 0x0:_start
 
 ; Boot Information Table is always at offset 8.
-; Causes an assembler error if it's preceded by more than 8 bytes worth of
-; code.
+; This line causes an assembler error if all of the code preceding this line
+; generates more than 8 bytes of machine code.
 times 8-($-$$) db 0
 
 ; Boot Information Table
@@ -19,6 +19,23 @@ Reserved                 resb  40   ; Reserved 'for future standardization'
 
 _start:
   cli
+
+  ; BIOS has loaded this code at 0000:7c00.
+  ; Relocate it from 0000:7c00 to 9000:0000.
+    mov ax, 0           ; Set ax to 0.
+
+    mov ds, ax          ; DS:SI = 0000:----.
+    mov si, 0x7c00      ; DS:SI = 0000:7c00.
+
+    mov ax, 0x9000      ; ????
+    mov es, ax          ; ES:DI = 9000:----.
+    mov di, 0           ; ES:DI = 9000:0000.
+
+    mov cx, 0x0800      ; 2048 bytes -- The BIOS loaded the first 2k from disk.
+    rep
+    movsb               ; Do the relocation
+
+    jmp 0x9000:($ - $$ + 1) ; Jump to the instruction following this jmp.
 
   ; TODO: Load stage2 from the CD.
 
