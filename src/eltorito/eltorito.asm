@@ -17,6 +17,10 @@ BootFileLength           resd  1    ; Length of the boot file in bytes
 Checksum                 resd  1    ; 32 bit checksum
 Reserved                 resb  40   ; Reserved 'for future standardization'
 
+DriveNumber              resb  1    ; Reserve space for the drive number.
+DiskPacket               resb  32   ; Reserve space to shove bullshit in.
+BytesPerSector           resw  1    ; Reserve space for bytes per sector.
+
 _start:
   cli
 
@@ -37,8 +41,42 @@ _start:
 
     jmp 0x9000:($ - $$ + 1) ; Jump to the instruction following this jmp.
 
-  ; TODO: Load stage2 from the CD.
+  ; Set up segment registers.
+  mov ax, cs ; what the actual fuck am I doing?
+  mov ax, ds
+  mov ax, 0
+  mov es, ax
+  mov ss, ax
+  mov sp, 0x7c00
 
+  ; Save the boot disk number.
+  mov [DriveNumber], dl
+
+  ; Get the number of bytes in a sector.
+  ; Usually 2048 bytes.
+  mov word [DiskPacket], 0x1a
+  mov ah, 0x48
+  mov al, 0
+  mov si, DiskPacket
+  mov dl, DriveNumber
+  int 0x13
+  jc assume_2k_sector
+
+  mov ax, DiskPacket + 0x18 ; ??? what the fuck?
+  mov [BytesPerSector], ax
+  jmp load_sector
+
+assume_2k_sector:
+  ; Assume 2KB sector.
+  ; Should probably print an error, but I don't really care right now.
+  mov word [BytesPerSector], 0x0800
+
+load_sector:
+  ; stage2 is in the root directory of the disk.
+  ; I have no idea what I'm doing.
+  ; Good luck.
+
+fail:
   ; If we get here, we've failed to load stage2, so print the failure message.
   mov si, FailureMessage
 
