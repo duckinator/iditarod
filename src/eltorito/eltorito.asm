@@ -91,15 +91,14 @@ _start:
 
     mov word [DAPSectors], 1
 
-    mov dword [DAPDestination], 0x7c00 ; Store destination address.
-                                       ; I'm not sure if this is the CORRECT
-                                       ; address or not, though.
+    mov word [DAPDestination], 0x00       ; Segment
+    mov word [DAPDestination + 1], 0x7c00 ; Offset
 
 
     ; ISO 9660 reserves sectors 0x00-0x0F, so we just guess it's 0x10.
     ; This is probably a bad idea but whatever.
-    mov word [DAPFirstSector], 0x00     ; First half of value.
-    mov word [DAPFirstSector + 1], 0x10 ; Second half.
+    mov dword [DAPFirstSector], BootFileLocation
+    mov dword [DAPFirstSector + 1], 0x00
 
 .read_sector:
   ; Read a single sector into memory.
