@@ -21,7 +21,19 @@ Reserved                 times 40 db 0 ; Reserved 'for future standardization'
 ; Things that need to be manually populated.
 
 DriveNumber              resb  1    ; Reserve space for the drive number.
-DiskPacket               resb  32   ; Reserve space to shove bullshit in.
+;DiskPacket               resb  32   ; Reserve space to shove bullshit in.
+DiskPacket:
+DAPSize:
+  db 0x10 ; Size of DAP.
+  db 0x00 ; Always zero.
+DAPSectors:
+  dw 0x00 ; Number of sectors to read. This will be overwritten.
+DAPDestination:
+  dd 0x00 ; segment:offset pointer to the memory buffer to which
+          ; sectors will be copied.
+DAPFirstSector:
+  dq 0x0  ; The sector number for the first sector.
+
 BytesPerSector           times 1  dw 0    ; Reserve space for bytes per sector.
 SectorDescriptor         times 32 db 0  ; Reserve space for sector location.
 
@@ -52,12 +64,13 @@ _start:
     jmp 0x9000:($ - $$ + 1) ; Jump to the instruction following this jmp.
 
   ; Set up segment registers.
-  mov ax, cs ; what the actual fuck am I doing?
-  mov ax, ds
-  mov ax, 0
-  mov es, ax
-  mov ss, ax
-  mov sp, 0x7c00
+  mov ax, cs ; Copy code segment to ax register.
+  ; TODO: Why does setting ds cause nothign to happen?
+  ;mov ds, ax ; Set data segment to value of code segment.
+  mov ax, 0  ; Set ax to zero for later use.
+  mov es, ax ; Zero es register. What's the es register for?
+  mov ss, ax ; Zero ss register. What's the ss register for?
+  mov sp, 0x7c00 ; Set up the stack.
 
   ; Save the boot disk number.
   mov [DriveNumber], dl
@@ -73,24 +86,30 @@ _start:
   ; I have no idea what I'm doing.
 
   ; Build data packet to request the BIOS load a sector.
-    mov byte [DiskPacket], 0x10
+  ; Some of this is hard-coded above, but *shrug*
+    mov byte [DAPSize], 0x10
 
-    mov word [DiskPacket + 2], 1 ; i don't know
+    mov word [DAPSectors], 1
 
-    ; Write the destination address
-    mov word [DiskPacket + 4], bx
-    mov word [DiskPacket + 6], es
+    mov dword [DAPDestination], 0x7c00 ; Store destination address.
+                                       ; I'm not sure if this is the CORRECT
+                                       ; address or not, though.
 
-    ; Write the logical sector to load
-    mov long [DiskPacket + 8], eax
-    mov long [DiskPacket + 12], 0
+
+    ; ISO 9660 reserves sectors 0x00-0x0F, so we just guess it's 0x10.
+    ; This is probably a bad idea but whatever.
+    mov word [DAPFirstSector], 0x00     ; First half of value.
+    mov word [DAPFirstSector + 1], 0x10 ; Second half.
 
 .read_sector:
   ; Read a single sector into memory.
-  mov ah, 0x42
-  mov al, 0
-  mov si, DiskPacket
-  mov dl, DriveNumber
+
+  ; Terminology:
+  ; * DAP = Disk Access Packet, aka DiskPacket.
+  mov ah, 0x42          ; 42h = extended read
+  mov al, 0             ; ???
+  mov si, DiskPacket    ; offset part of segment:offset pointer to the DAP.
+  mov dl, DriveNumber   ; segment part of segment:offset pointer to the DAP.
   int 0x13
   jnc .read_sector_success
 
