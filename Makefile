@@ -1,4 +1,4 @@
-NAME ?= semplice
+NAME ?= iditarod
 
 BUILD_TYPE ?= debug
 
