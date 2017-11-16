@@ -81,23 +81,25 @@ fail:
   mov si, FailureMessage
   call print
 
+halt:
+  cli
+  hlt
+  jmp halt
+
 print:
   ; Usage:
   ;     mov si, LocationOfString
   ;     call print
   mov ah, 0xe
+  mov bh, 0
   .print_character:
     lodsb
     cmp al, 0
-    jz halt
+    jz .return
     int 0x10
     jmp .print_character
+  .return:
     ret
-
-halt:
-  cli
-  hlt
-  jmp halt
 
 FailureMessage  db `Can't load Iditarod Stage 2.\r\n`, 0
 
