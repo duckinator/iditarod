@@ -79,7 +79,12 @@ load_sector:
 fail:
   ; If we get here, we've failed to load stage2, so print the failure message.
   mov si, FailureMessage
+  call print
 
+print:
+  ; Usage:
+  ;     mov si, LocationOfString
+  ;     call print
   mov ah, 0xe
   .print_character:
     lodsb
@@ -87,6 +92,7 @@ fail:
     jz halt
     int 0x10
     jmp .print_character
+    ret
 
 halt:
   cli
