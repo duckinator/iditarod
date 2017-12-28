@@ -1,3 +1,5 @@
+; asmsyntax=nasm
+
 gdt:
 
 gdt_null:

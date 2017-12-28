@@ -1,3 +1,5 @@
+; asmsyntax=nasm
+
 bits 16
 
 enable_a20:
